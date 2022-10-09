@@ -1,5 +1,7 @@
 <?php
 $insert = false;
+$updated = false;
+$delete = false;
 // Connect to the server
 $servername = "localhost";
 $username = "root";
@@ -17,13 +19,21 @@ if(!$conn){
 }
 
 
+if(isset($_GET["delete"])){
+  $sno = $_GET["delete"];
+  $delete = true;
+
+ $sql = "DELETE FROM `notes` WHERE `notes`.`sno` = $sno";
+  $result = mysqli_query($conn, $sql);
+}
+
 if($_SERVER["REQUEST_METHOD"] == "POST"){
   
   if($_POST['tsSnoEdit']){
       $sno = $_POST["tsSnoEdit"];
       $title = $_POST["tsEditNoteTitle"];
       $description = $_POST["tsEditNoteDescription"];
-
+      $updated = true;
       
       $sql =  "UPDATE `notes` SET `title` = $title, `description` = $description WHERE `notes`.`sno` = $sno";
  
@@ -160,6 +170,24 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             </div>';
           }
         ?>
+        <?php 
+          if( $updated ){
+       
+            echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
+              <strong>Holy guacamole!</strong> Your Note has been updated successfully
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>';
+          }
+        ?>
+        <?php 
+          if( $delete ){
+       
+            echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
+              <strong>Holy guacamole!</strong> Your Note has been deleted successfully
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>';
+          }
+        ?>
         <main class="mb-5">
             <div class="container py-5 mb-5">
                 <h1 class="text-center mb-3">ADD NOTE</h1>
@@ -208,7 +236,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                     <td scope='row'> 
                     <button type='button' class='btn-edit btn btn-primary' data-bs-toggle='modal' data-bs-target='#editModal' id=".$row['sno'].">
                     Edit</button>
-                     <button class='btn btn-danger'>Delete</button> </td> 
+                     <button class='ts-delete-modal btn btn-danger' id=".$row['sno'].">Delete</button> </td> 
                     </tr>";  
                     // echo $row['sno'] ;
                     // echo "Title" . $row['title'] ;
@@ -251,6 +279,13 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
                 console.log("sNo" + sNo)
                 console.log("desc" + desc)
+            })
+            $(".ts-delete-modal").click(function(e) {
+                let sNo = e.target.id;
+                if (confirm(
+                        "Are you sure you want to delete")) {
+                    window.location = `/CRUD/?delete=${sNo}`
+                }
             })
         });
         </script>
